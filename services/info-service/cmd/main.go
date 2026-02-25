@@ -24,6 +24,9 @@ func main() {
 	speciesRepo := repository.NewSpeciesRepository(database)
 	speciesService := service.NewSpeciesService(speciesRepo)
 	speciesHandler := handler.NewSpeciesHandler(speciesService)
+	categoryRepo := repository.NewCategoryRepository(database)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
 
 	r := gin.Default()
 
@@ -31,7 +34,7 @@ func main() {
 	r.GET("/species/:id", speciesHandler.GetByID)
 	r.GET("/species/search", speciesHandler.SearchByName)
 	r.GET("/species/category/:id", speciesHandler.GetByCategory)
-	r.GET("/categories")
+	r.GET("/categories", categoryHandler.GetAll)
 
 	log.Println("Info Servicetarted on: 8080")
 	r.Run(":8080")

@@ -34,6 +34,7 @@ SELECT
 	s.edibility,
 	s.toxicity_level,
 	s.reference_image_url,
+	s.category_id,
 	c.name AS category_name
 FROM species s
 JOIN categories c ON s.category_id = c.id
@@ -80,6 +81,6 @@ func (r *speciesRepo) SearchByName(ctx context.Context, name string, page, limit
 	return result, err
 }
 
-func (r *speciesRepo) GetFiltered(ctx context.Context, edibility *int, toxicityMax *int, limit, offset int) ([]dto.SpeciesResponse, error) {
+func (r *speciesRepo) GetFiltered(ctx context.Context, name *string, categoryID *int64, edibility *int, toxicityMax *int, page, limit int) ([]dto.SpeciesResponse, error) {
 
 }
