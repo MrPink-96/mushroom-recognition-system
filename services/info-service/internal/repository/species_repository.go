@@ -34,7 +34,7 @@ SELECT
 	s.edibility,
 	s.toxicity_level,
 	s.reference_image_url,
-	s.category_id,
+	c.id AS category_id,
 	c.name AS category_name
 FROM species s
 JOIN categories c ON s.category_id = c.id

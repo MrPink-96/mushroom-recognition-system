@@ -1,13 +1,38 @@
 package dto
 
+type CategoryShort struct {
+	ID   int64  `json:"id" db:"category_id"`
+	Name string `json:"name" db:"category_name"`
+}
+
 type SpeciesResponse struct {
-	ID                int64  `db:"id" json:"id"`
-	ScientificName    string `db:"scientific_name" json:"scientific_name"`
-	CommonName        string `db:"common_name" json:"common_name"`
-	Description       string `db:"description" json:"description"`
-	Edibility         int    `db:"edibility" json:"edibility"`
-	ToxicityLevel     int    `db:"toxicity_level" json:"toxicity_level"`
-	ReferenceImageURL string `db:"reference_image_url" json:"reference_image_url"`
-	CategoryID        int64  `db:"category_id" json:"category_id"`
-	CategoryName      string `db:"category_name" json:"category_name"`
+	ID                int64         `json:"id" db:"id"`
+	ScientificName    string        `json:"scientific_name" db:"scientific_name"`
+	CommonName        string        `json:"common_name" db:"common_name"`
+	Description       string        `json:"description" db:"description"`
+	Edibility         int           `json:"edibility" db:"edibility"`
+	ToxicityLevel     int           `json:"toxicity_level" db:"toxicity_level"`
+	ReferenceImageURL string        `json:"reference_image_url" db:"reference_image_url"`
+	Category          CategoryShort `json:"category"`
+}
+
+type Meta struct {
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
+	Total int `json:"total"`
+	Pages int `json:"pages"`
+}
+
+type PaginatedSpeciesResponse struct {
+	Data []SpeciesResponse `json:"data"`
+	Meta Meta              `json:"meta"`
+}
+
+type SpeciesFilter struct {
+	Name        *string
+	CategoryID  *int64
+	Edibility   *int
+	ToxicityMax *int
+	Page        int
+	Limit       int
 }
