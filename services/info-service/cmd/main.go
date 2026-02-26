@@ -35,6 +35,7 @@ func main() {
 	r.GET("/species/search", speciesHandler.SearchByName)
 	r.GET("/species/category/:id", speciesHandler.GetByCategory)
 	r.GET("/categories", categoryHandler.GetAll)
+	r.GET("/species/filter", speciesHandler.GetFiltered)
 
 	log.Println("Info Servicetarted on: 8080")
 	r.Run(":8080")

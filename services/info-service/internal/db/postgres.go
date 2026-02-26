@@ -10,9 +10,11 @@ func NewPostgres(dsn string) (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.SetMaxOpenConns(25)
+
+	db.SetMaxOpenConns(50)
 	db.SetMaxIdleConns(25)
-	db.SetConnMaxLifetime(time.Hour)
+	db.SetConnMaxLifetime(30 * time.Minute)
+	db.SetConnMaxIdleTime(5 * time.Minute)
 
 	return db, nil
 }

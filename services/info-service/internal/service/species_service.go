@@ -4,6 +4,7 @@ import (
 	"Info_Service/internal/dto"
 	"Info_Service/internal/repository"
 	"context"
+	"math"
 )
 
 type SpeciesService struct {
@@ -24,21 +25,63 @@ func normalize(page, limit int) (int, int) {
 	return page, limit
 }
 
+func buildPaginated(data []dto.SpeciesResponse, total, page, limit int) dto.PaginatedSpeciesResponse {
+	pages := int(math.Ceil(float64(total) / float64(limit)))
+
+	return dto.PaginatedSpeciesResponse{
+		Data: data,
+		Meta: dto.Meta{
+			Page:  page,
+			Limit: limit,
+			Total: total,
+			Pages: pages,
+		},
+	}
+}
+
 func (s *SpeciesService) GetByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error) {
 	return s.repo.GetByID(ctx, id)
 }
 
-func (s *SpeciesService) GetAll(ctx context.Context, page, limit int) ([]dto.SpeciesResponse, error) {
+func (s *SpeciesService) GetAll(ctx context.Context, page, limit int) (dto.PaginatedSpeciesResponse, error) {
 	page, limit = normalize(page, limit)
-	return s.repo.GetAll(ctx, page, limit)
+
+	data, total, err := s.repo.GetAll(ctx, page, limit)
+	if err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
+
+	return buildPaginated(data, total, page, limit), nil
 }
 
-func (s *SpeciesService) GetByCategory(ctx context.Context, categoryID int64, page, limit int) ([]dto.SpeciesResponse, error) {
+func (s *SpeciesService) GetByCategory(ctx context.Context, categoryID int64, page, limit int) (dto.PaginatedSpeciesResponse, error) {
 	page, limit = normalize(page, limit)
-	return s.repo.GetByCategory(ctx, categoryID, page, limit)
+
+	data, total, err := s.repo.GetByCategory(ctx, categoryID, page, limit)
+	if err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
+
+	return buildPaginated(data, total, page, limit), nil
+
 }
 
-func (s *SpeciesService) SearchByName(ctx context.Context, name string, page, limit int) ([]dto.SpeciesResponse, error) {
+func (s *SpeciesService) SearchByName(ctx context.Context, name string, page, limit int) (dto.PaginatedSpeciesResponse, error) {
 	page, limit = normalize(page, limit)
-	return s.repo.SearchByName(ctx, name, page, limit)
+
+	data, total, err := s.repo.SearchByName(ctx, name, page, limit)
+	if err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
+	return buildPaginated(data, total, page, limit), nil
+}
+
+func (s *SpeciesService) GetFiltered(ctx context.Context, filter dto.SpeciesFilter) (dto.PaginatedSpeciesResponse, error) {
+	filter.Page, filter.Limit = normalize(filter.Page, filter.Limit)
+	data, total, err := s.repo.GetFiltered(ctx, filter)
+	if err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
+
+	return buildPaginated(data, total, filter.Page, filter.Limit), nil
 }
