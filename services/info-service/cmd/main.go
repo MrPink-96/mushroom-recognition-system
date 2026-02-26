@@ -6,6 +6,7 @@ import (
 	"Info_Service/internal/repository"
 	"Info_Service/internal/service"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 )

@@ -1,8 +1,8 @@
 package dto
 
 type CategoryShort struct {
-	ID   int64  `json:"id" db:"category_id"`
-	Name string `json:"name" db:"category_name"`
+	ID   int64  `json:"id" db:"id"`
+	Name string `json:"name" db:"name"`
 }
 
 type SpeciesResponse struct {
@@ -13,7 +13,7 @@ type SpeciesResponse struct {
 	Edibility         int           `json:"edibility" db:"edibility"`
 	ToxicityLevel     int           `json:"toxicity_level" db:"toxicity_level"`
 	ReferenceImageURL string        `json:"reference_image_url" db:"reference_image_url"`
-	Category          CategoryShort `json:"category"`
+	Category          CategoryShort `json:"category" db:"category"`
 }
 
 type Meta struct {
