@@ -42,6 +42,14 @@ FROM species s
 JOIN categories c ON s.category_id = c.id
 `
 
+var allowedSortFields = map[string]string{
+	"id":              "s.id",
+	"scientific_name": "s.scientific_name",
+	"common_name":     "s.common_name",
+	"toxicity":        "s.toxicity_level",
+	"edibility":       "s.edibility",
+}
+
 func (r *speciesRepo) GetByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error) {
 	query := baseQuery + ` WHERE s.id = $1`
 	var result dto.SpeciesResponse
@@ -104,13 +112,18 @@ func (r *speciesRepo) SearchByName(ctx context.Context, name string, page, limit
 	return result, total, err
 }
 
-func (r *speciesRepo) GetFiltered(ctx context.Context, filter dto.SpeciesFilter) ([]dto.SpeciesResponse, int, error) {
+func (r *speciesRepo) GetFiltered(
+	ctx context.Context,
+	filter dto.SpeciesFilter,
+) ([]dto.SpeciesResponse, int, error) {
+
 	where := []string{}
 	args := []interface{}{}
 	argPos := 1
 
 	if filter.Name != nil {
-		where = append(where, fmt.Sprintf("(s.common_name ILIKE $%d OR s.scientific_name ILIKE $%d)", argPos, argPos))
+		where = append(where,
+			fmt.Sprintf("(s.common_name ILIKE $%d OR s.scientific_name ILIKE $%d)", argPos, argPos))
 		args = append(args, "%"+*filter.Name+"%")
 		argPos++
 	}
@@ -128,13 +141,20 @@ func (r *speciesRepo) GetFiltered(ctx context.Context, filter dto.SpeciesFilter)
 	}
 
 	if filter.ToxicityMax != nil {
-		where = append(where, fmt.Sprintf("s.edibility = $%d", argPos))
+		where = append(where, fmt.Sprintf("s.toxicity_level <= $%d", argPos))
 		args = append(args, *filter.ToxicityMax)
+		argPos++
+	}
+
+	if filter.Cursor != nil {
+		where = append(where, fmt.Sprintf("s.id > $%d", argPos))
+		args = append(args, *filter.Cursor)
 		argPos++
 	}
 
 	query := baseQuery
 	countQuery := `SELECT COUNT(*) FROM species s`
+
 	if len(where) > 0 {
 		condition := " WHERE " + strings.Join(where, " AND ")
 		query += condition
@@ -142,17 +162,33 @@ func (r *speciesRepo) GetFiltered(ctx context.Context, filter dto.SpeciesFilter)
 	}
 
 	var total int
-	if err := r.db.GetContext(ctx, &total, countQuery, args...); err != nil {
-		return nil, 0, err
+	if filter.Cursor == nil {
+		if err := r.db.GetContext(ctx, &total, countQuery, args...); err != nil {
+			return nil, 0, err
+		}
 	}
 
-	offset := (filter.Page - 1) * filter.Limit
-	query += fmt.Sprintf(" ORDER BY s.id ASC LIMIT $%d OFFSET $%d", argPos, argPos+1)
-	args = append(args, filter.Limit, offset)
+	sortField, ok := allowedSortFields[filter.Sort]
+	if !ok {
+		sortField = "s.id"
+	}
+
+	order := "ASC"
+	if strings.ToLower(filter.Order) == "desc" {
+		order = "DESC"
+	}
+
+	query += fmt.Sprintf(" ORDER BY %s %s LIMIT $%d", sortField, order, argPos)
+	args = append(args, filter.Limit)
+
+	if filter.Cursor == nil {
+		offset := (filter.Page - 1) * filter.Limit
+		query += fmt.Sprintf(" OFFSET $%d", argPos+1)
+		args = append(args, offset)
+	}
 
 	var result []dto.SpeciesResponse
 	err := r.db.SelectContext(ctx, &result, query, args...)
 
 	return result, total, err
-
 }

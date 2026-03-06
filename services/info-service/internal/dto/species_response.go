@@ -1,8 +1,8 @@
 package dto
 
 type CategoryShort struct {
-	ID   int64  `json:"id" db:"id"`
-	Name string `json:"name" db:"name"`
+	ID   int64  `json:"id" db:"category.id"`
+	Name string `json:"name" db:"category.name"`
 }
 
 type SpeciesResponse struct {
@@ -13,14 +13,15 @@ type SpeciesResponse struct {
 	Edibility         int           `json:"edibility" db:"edibility"`
 	ToxicityLevel     int           `json:"toxicity_level" db:"toxicity_level"`
 	ReferenceImageURL string        `json:"reference_image_url" db:"reference_image_url"`
-	Category          CategoryShort `json:"category" db:"category"`
+	Category          CategoryShort `json:"category"`
 }
 
 type Meta struct {
-	Page  int `json:"page"`
-	Limit int `json:"limit"`
-	Total int `json:"total"`
-	Pages int `json:"pages"`
+	Page       int    `json:"page,omitempty"`
+	Limit      int    `json:"limit"`
+	Total      int    `json:"total,omitempty"`
+	Pages      int    `json:"pages,omitempty"`
+	NextCursor *int64 `json:"next_cursor,omitempty"`
 }
 
 type PaginatedSpeciesResponse struct {
@@ -33,6 +34,10 @@ type SpeciesFilter struct {
 	CategoryID  *int64
 	Edibility   *int
 	ToxicityMax *int
-	Page        int
-	Limit       int
+
+	Sort   string
+	Order  string
+	Page   int
+	Limit  int
+	Cursor *int64
 }

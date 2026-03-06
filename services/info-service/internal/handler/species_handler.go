@@ -4,10 +4,12 @@ import (
 	"Info_Service/internal/dto"
 	appErr "Info_Service/internal/errors"
 	"Info_Service/internal/service"
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type SpeciesHandler struct {
@@ -128,7 +130,12 @@ func (h *SpeciesHandler) GetFiltered(c *gin.Context) {
 		return
 	}
 
-	filter := dto.SpeciesFilter{Page: page, Limit: limit}
+	filter := dto.SpeciesFilter{
+		Page:  page,
+		Limit: limit,
+		Sort:  c.DefaultQuery("sort", "id"),
+		Order: c.DefaultQuery("order", "asc"),
+	}
 	if name := c.Query("name"); name != "" {
 		filter.Name = &name
 	}
@@ -161,8 +168,10 @@ func (h *SpeciesHandler) GetFiltered(c *gin.Context) {
 		filter.ToxicityMax = &val
 
 	}
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	defer cancel()
 
-	result, err := h.service.GetFiltered(c.Request.Context(), filter)
+	result, err := h.service.GetFiltered(ctx, filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": appErr.ErrInternal.Error()})
 		return

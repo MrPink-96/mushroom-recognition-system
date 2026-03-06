@@ -77,11 +77,39 @@ func (s *SpeciesService) SearchByName(ctx context.Context, name string, page, li
 }
 
 func (s *SpeciesService) GetFiltered(ctx context.Context, filter dto.SpeciesFilter) (dto.PaginatedSpeciesResponse, error) {
-	filter.Page, filter.Limit = normalize(filter.Page, filter.Limit)
+	if filter.Limit <= 0 || filter.Limit > 100 {
+		filter.Limit = 10
+	}
+
+	if filter.Cursor == nil {
+		if filter.Page <= 0 {
+			filter.Page = 1
+		}
+	}
+
 	data, total, err := s.repo.GetFiltered(ctx, filter)
 	if err != nil {
 		return dto.PaginatedSpeciesResponse{}, err
 	}
 
-	return buildPaginated(data, total, filter.Page, filter.Limit), nil
+	meta := dto.Meta{
+		Limit: filter.Limit,
+	}
+
+	if filter.Cursor == nil {
+		pages := (total + filter.Limit - 1) / filter.Limit
+		meta.Page = filter.Page
+		meta.Total = total
+		meta.Pages = pages
+	}
+
+	if filter.Cursor != nil && len(data) > 0 {
+		lastID := data[len(data)-1].ID
+		meta.NextCursor = &lastID
+	}
+
+	return dto.PaginatedSpeciesResponse{
+		Data: data,
+		Meta: meta,
+	}, nil
 }
