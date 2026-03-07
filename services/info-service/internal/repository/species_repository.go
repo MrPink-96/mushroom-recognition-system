@@ -13,7 +13,7 @@ import (
 
 type SpeciesRepository interface {
 	GetByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error)
-	GetAll(ctx context.Context, page, limit int) ([]dto.SpeciesResponse, int, error)
+	GetAll(ctx context.Context, page, limit int, sortBy, order string) ([]dto.SpeciesResponse, int, error)
 	GetByCategory(ctx context.Context, categoryID int64, page, limit int) ([]dto.SpeciesResponse, int, error)
 	SearchByName(ctx context.Context, name string, page, limit int) ([]dto.SpeciesResponse, int, error)
 	GetFiltered(ctx context.Context, filter dto.SpeciesFilter) ([]dto.SpeciesResponse, int, error)
@@ -27,7 +27,7 @@ func NewSpeciesRepository(db *sqlx.DB) SpeciesRepository {
 	return &speciesRepo{db: db}
 }
 
-const baseQuery = `
+const speciesBaseQuery = `
 SELECT 
  s.id AS "id",
     s.scientific_name AS "scientific_name",
@@ -51,7 +51,7 @@ var allowedSortFields = map[string]string{
 }
 
 func (r *speciesRepo) GetByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error) {
-	query := baseQuery + ` WHERE s.id = $1`
+	query := speciesBaseQuery + ` WHERE s.id = $1`
 	var result dto.SpeciesResponse
 	err := r.db.GetContext(ctx, &result, query, id)
 	if err != nil {
@@ -63,7 +63,7 @@ func (r *speciesRepo) GetByID(ctx context.Context, id int64) (*dto.SpeciesRespon
 	return &result, nil
 }
 
-func (r *speciesRepo) GetAll(ctx context.Context, page, limit int) ([]dto.SpeciesResponse, int, error) {
+func (r *speciesRepo) GetAll(ctx context.Context, page, limit int, sortBy, order string) ([]dto.SpeciesResponse, int, error) {
 	offset := (page - 1) * limit
 
 	var total int
@@ -72,7 +72,18 @@ func (r *speciesRepo) GetAll(ctx context.Context, page, limit int) ([]dto.Specie
 		return nil, 0, err
 	}
 
-	query := baseQuery + ` ORDER BY s.id ASC LIMIT $1 OFFSET $2`
+	sortField, ok := allowedSortFields[sortBy]
+	if !ok {
+		sortField = "s.id"
+	}
+	sortOrder := "ASC"
+	if strings.ToLower(order) == "desc" {
+		sortOrder = "DESC"
+	}
+
+	query := fmt.Sprintf(`%s ORDER BY %s %s LIMIT $1 OFFSET $2`,
+		speciesBaseQuery, sortField, sortOrder)
+
 	var result []dto.SpeciesResponse
 	err := r.db.SelectContext(ctx, &result, query, limit, offset)
 	return result, total, err
@@ -87,7 +98,7 @@ func (r *speciesRepo) GetByCategory(ctx context.Context, categoryID int64, page,
 		return nil, 0, err
 	}
 
-	query := baseQuery + ` WHERE s.category_id = $1 ORDER BY s.id ASC LIMIT $2 OFFSET $3`
+	query := speciesBaseQuery + ` WHERE s.category_id = $1 ORDER BY s.id ASC LIMIT $2 OFFSET $3`
 	var result []dto.SpeciesResponse
 	err := r.db.SelectContext(ctx, &result, query, categoryID, limit, offset)
 	return result, total, err
@@ -104,7 +115,7 @@ func (r *speciesRepo) SearchByName(ctx context.Context, name string, page, limit
 		return nil, 0, err
 	}
 
-	query := baseQuery + ` WHERE s.common_name ILIKE $1 OR s.scientific_name ILIKE $1
+	query := speciesBaseQuery + ` WHERE s.common_name ILIKE $1 OR s.scientific_name ILIKE $1
 			ORDER BY s.id ASC LIMIT $2 OFFSET $3`
 
 	var result []dto.SpeciesResponse
@@ -152,7 +163,7 @@ func (r *speciesRepo) GetFiltered(
 		argPos++
 	}
 
-	query := baseQuery
+	query := speciesBaseQuery
 	countQuery := `SELECT COUNT(*) FROM species s`
 
 	if len(where) > 0 {
