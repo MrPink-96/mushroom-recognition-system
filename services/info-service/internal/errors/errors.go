@@ -12,4 +12,5 @@ var (
 	ErrInvalidCategoryID = errors.New("invalid category id")
 	ErrInvalidEdibility  = errors.New("invalid edibility (must be number)")
 	ErrInvalidToxicity   = errors.New("invalid toxicity_max (must be number)")
+	ErrEmptySearchQuery  = errors.New("search query cannot be empty")
 )

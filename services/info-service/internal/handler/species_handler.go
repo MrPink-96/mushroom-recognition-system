@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -18,55 +19,6 @@ type SpeciesHandler struct {
 
 func NewSpeciesHandler(service *service.SpeciesService) *SpeciesHandler {
 	return &SpeciesHandler{service: service}
-}
-
-func parseID(idStr string) (int64, error) {
-	if idStr == "" {
-		return 0, appErr.ErrInvalidID
-	}
-
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		return 0, appErr.ErrInvalidID
-	}
-
-	if id <= 0 {
-		return 0, appErr.ErrInvalidID
-	}
-
-	return id, nil
-}
-
-func parsePageAndLimit(pageStr, limitStr string) (int, int, error) {
-	page, err := strconv.Atoi(pageStr)
-	if err != nil {
-		return 0, 0, appErr.ErrInvalidPage
-	}
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		return 0, 0, appErr.ErrInvalidLimit
-	}
-
-	return page, limit, nil
-}
-
-func (h *SpeciesHandler) GetAll(c *gin.Context) {
-	page, limit, err := parsePageAndLimit(c.DefaultQuery("page", "1"), c.DefaultQuery("limit", "10"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	sortBy := c.DefaultQuery("sort", "id")
-	order := c.DefaultQuery("order", "asc")
-
-	result, err := h.service.GetAll(c.Request.Context(), page, limit, sortBy, order)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, result)
-
 }
 
 func (h *SpeciesHandler) GetByID(c *gin.Context) {
@@ -87,6 +39,25 @@ func (h *SpeciesHandler) GetByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+func (h *SpeciesHandler) GetAll(c *gin.Context) {
+	page, limit, err := parsePageAndLimit(c.DefaultQuery("page", "1"), c.DefaultQuery("limit", "10"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	sortBy := c.DefaultQuery("sort", "id")
+	order := c.DefaultQuery("order", "asc")
+
+	result, err := h.service.GetAll(c.Request.Context(), page, limit, sortBy, order)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+
 }
 
 func (h *SpeciesHandler) GetByCategory(c *gin.Context) {
@@ -118,6 +89,11 @@ func (h *SpeciesHandler) SearchByName(c *gin.Context) {
 	}
 
 	name := c.Query("name")
+	if strings.TrimSpace(name) == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": appErr.ErrEmptySearchQuery.Error()})
+		return
+	}
+
 	result, err := h.service.SearchByName(c.Request.Context(), name, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": appErr.ErrInternal.Error()})

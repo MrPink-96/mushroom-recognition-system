@@ -35,6 +35,7 @@ func (s *SpeciesService) GetByID(ctx context.Context, id int64) (*dto.SpeciesRes
 
 func (s *SpeciesService) GetAll(ctx context.Context, page, limit int, sortBy, order string) (dto.PaginatedSpeciesResponse, error) {
 	page, limit = normalizePagination(page, limit)
+	order = normalizeSortOrder(order)
 
 	data, total, err := s.repo.GetAll(ctx, page, limit, sortBy, order)
 	if err != nil {
@@ -76,6 +77,7 @@ func (s *SpeciesService) GetFiltered(ctx context.Context, filter dto.SpeciesFilt
 			filter.Page = 1
 		}
 	}
+	filter.Order = normalizeSortOrder(filter.Order)
 
 	data, total, err := s.repo.GetFiltered(ctx, filter)
 	if err != nil {

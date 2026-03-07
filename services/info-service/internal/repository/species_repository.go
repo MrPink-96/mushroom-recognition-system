@@ -76,13 +76,9 @@ func (r *speciesRepo) GetAll(ctx context.Context, page, limit int, sortBy, order
 	if !ok {
 		sortField = "s.id"
 	}
-	sortOrder := "ASC"
-	if strings.ToLower(order) == "desc" {
-		sortOrder = "DESC"
-	}
 
 	query := fmt.Sprintf(`%s ORDER BY %s %s LIMIT $1 OFFSET $2`,
-		speciesBaseQuery, sortField, sortOrder)
+		speciesBaseQuery, sortField, order)
 
 	var result []dto.SpeciesResponse
 	err := r.db.SelectContext(ctx, &result, query, limit, offset)
@@ -184,12 +180,7 @@ func (r *speciesRepo) GetFiltered(
 		sortField = "s.id"
 	}
 
-	order := "ASC"
-	if strings.ToLower(filter.Order) == "desc" {
-		order = "DESC"
-	}
-
-	query += fmt.Sprintf(" ORDER BY %s %s LIMIT $%d", sortField, order, argPos)
+	query += fmt.Sprintf(" ORDER BY %s %s LIMIT $%d", sortField, filter.Order, argPos)
 	args = append(args, filter.Limit)
 
 	if filter.Cursor == nil {
