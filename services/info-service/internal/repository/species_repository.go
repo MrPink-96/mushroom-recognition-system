@@ -29,15 +29,16 @@ func NewSpeciesRepository(db *sqlx.DB) SpeciesRepository {
 
 const speciesBaseQuery = `
 SELECT 
- s.id AS "id",
+ 	s.id AS "id",
     s.scientific_name AS "scientific_name",
     s.common_name AS "common_name",
     s.description AS "description",
     s.edibility AS "edibility",
     s.toxicity_level AS "toxicity_level",
     s.reference_image_url AS "reference_image_url",
-    s.category_id AS "category.id",
-    c.name AS "category.name"
+    
+	c.id   AS "category.id",
+	c.name AS "category.name"
 FROM species s
 JOIN categories c ON s.category_id = c.id
 `

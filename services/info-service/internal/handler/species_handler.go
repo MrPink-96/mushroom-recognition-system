@@ -53,7 +53,7 @@ func (h *SpeciesHandler) GetAll(c *gin.Context) {
 
 	result, err := h.service.GetAll(c.Request.Context(), page, limit, sortBy, order)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": appErr.ErrInternal.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, result)

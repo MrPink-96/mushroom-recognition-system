@@ -48,11 +48,11 @@ func main() {
 	r.GET("/species/:id", speciesHandler.GetByID)
 	r.GET("/species/search", speciesHandler.SearchByName)
 	r.GET("/species/category/:id", speciesHandler.GetByCategory)
+	r.GET("/species/filter", speciesHandler.GetFiltered)
 
 	r.GET("/categories", categoryHandler.GetAll)
 	r.GET("/categories/:id", categoryHandler.GetByID)
 	r.GET("/categories/search", categoryHandler.SearchByName)
-	r.GET("/species/filter", speciesHandler.GetFiltered)
 
 	///log.Println("Info Servicetarted on: 8080")
 	///r.Run(":" + cfg.Port)

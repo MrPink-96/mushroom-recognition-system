@@ -1,19 +1,20 @@
 package dto
 
 type CategoryShort struct {
-	ID   int64  `json:"id" db:"category.id"`
-	Name string `json:"name" db:"category.name"`
+	ID   int64  `json:"id" db:"id"`
+	Name string `json:"name" db:"name"`
 }
 
 type SpeciesResponse struct {
-	ID                int64         `json:"id" db:"id"`
-	ScientificName    string        `json:"scientific_name" db:"scientific_name"`
-	CommonName        string        `json:"common_name" db:"common_name"`
-	Description       string        `json:"description" db:"description"`
-	Edibility         int           `json:"edibility" db:"edibility"`
-	ToxicityLevel     int           `json:"toxicity_level" db:"toxicity_level"`
-	ReferenceImageURL string        `json:"reference_image_url" db:"reference_image_url"`
-	Category          CategoryShort `json:"category"`
+	ID                int64  `json:"id" db:"id"`
+	ScientificName    string `json:"scientific_name" db:"scientific_name"`
+	CommonName        string `json:"common_name" db:"common_name"`
+	Description       string `json:"description" db:"description"`
+	Edibility         int    `json:"edibility" db:"edibility"`
+	ToxicityLevel     int    `json:"toxicity_level" db:"toxicity_level"`
+	ReferenceImageURL string `json:"reference_image_url" db:"reference_image_url"`
+
+	Category CategoryShort `json:"category" db:"category"`
 }
 
 type PaginatedSpeciesResponse struct {
