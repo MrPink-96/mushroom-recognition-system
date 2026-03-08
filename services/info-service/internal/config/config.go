@@ -1,6 +1,8 @@
 package config
 
-import "os"
+import (
+	"os"
+)
 
 type Config struct {
 	Port string
@@ -13,7 +15,7 @@ func Load() Config {
 		port = "8080"
 	}
 
-	dsn := os.Getenv("DATABASE_URL")
+	//	dsn := os.Getenv("DATABASE_URL")
 
 	return Config{
 		Port: port,
