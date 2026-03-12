@@ -1,19 +1,31 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from app.core.config import settings
+from app.services.preprocessing import load_image_from_bytes
+from app.services.classifier import classify_image
+
 
 router = APIRouter()
 
+
+async def read_upload(file: UploadFile) -> bytes:
+    if file.content_type not in settings.ALLOWED_IMAGE_TYPES:
+        raise HTTPException(415, "Unsupported media type")
+    data = await file.read()
+    if len(data) > settings.MAX_FILE_SIZE:
+        raise HTTPException(413, "File too large")
+
+    return data
+
+
 @router.post("/classify")
 async def classify(file: UploadFile = File(...)):
-    return {
-        "prediction": {
-            "species_id": 1,
-            "probability": 0.95
-        },
-        "top_predictions": [
-            {"species_id": 1, "probability": 0.95},
-            {"species_id": 2, "probability": 0.03},
-            {"species_id": 3, "probability": 0.01},
-            {"species_id": 4, "probability": 0.008},
-            {"species_id": 5, "probability": 0.002}
-        ]
-    }
+    data = await read_upload(file)
+    image = load_image_from_bytes(data)
+
+    if image.width > settings.MAX_IMAGE_WIDTH:
+        raise HTTPException(400, "Image width too large")
+    if image.height > settings.MAX_IMAGE_HEIGHT:
+        raise HTTPException(400, "Image height too large")
+    result = classify_image(image)
+
+    return result
