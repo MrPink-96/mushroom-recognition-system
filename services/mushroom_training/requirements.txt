@@ -1,7 +1,0 @@
-torch
-torchvision
-timm
-pandas
-scikit-learn
-opencv-python
-tqdm
