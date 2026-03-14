@@ -6,13 +6,13 @@ type CategoryShort struct {
 }
 
 type SpeciesResponse struct {
-	ID                int64  `json:"id" db:"id"`
-	ScientificName    string `json:"scientific_name" db:"scientific_name"`
-	CommonName        string `json:"common_name" db:"common_name"`
-	Description       string `json:"description" db:"description"`
-	Edibility         int    `json:"edibility" db:"edibility"`
-	ToxicityLevel     int    `json:"toxicity_level" db:"toxicity_level"`
-	ReferenceImageURL string `json:"reference_image_url" db:"reference_image_url"`
+	ID             int64    `json:"id" db:"id"`
+	ScientificName string   `json:"scientific_name" db:"scientific_name"`
+	CommonName     string   `json:"common_name" db:"common_name"`
+	Description    string   `json:"description" db:"description"`
+	Edibility      int      `json:"edibility" db:"edibility"`
+	ToxicityLevel  int      `json:"toxicity_level" db:"toxicity_level"`
+	Images         []string `json:"images" db:"images"`
 
 	Category CategoryShort `json:"category" db:"category"`
 }

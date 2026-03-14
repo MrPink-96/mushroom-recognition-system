@@ -4,9 +4,11 @@ import (
 	"Info_Service/internal/config"
 	"Info_Service/internal/db"
 	"Info_Service/internal/handler"
+	"Info_Service/internal/middleware"
 	"Info_Service/internal/repository"
 	"Info_Service/internal/service"
 	"context"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"log"
@@ -42,10 +44,16 @@ func main() {
 	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
+	r.Use(cors.Default())
+	r.Use(middleware.TimeoutMiddleware(5 * time.Second))
+
+	r.Static("/images", "./images")
+
 	r.GET("/health", healthHandler.Check)
 
-	r.GET("/species/", speciesHandler.GetAll)
+	r.GET("/species", speciesHandler.GetAll)
 	r.GET("/species/:id", speciesHandler.GetByID)
+	r.GET("/species/batch", speciesHandler.GetByIDs)
 	r.GET("/species/search", speciesHandler.SearchByName)
 	r.GET("/species/category/:id", speciesHandler.GetByCategory)
 	r.GET("/species/filter", speciesHandler.GetFiltered)

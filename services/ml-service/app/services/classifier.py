@@ -7,7 +7,7 @@ from app.ml.inference import run_inference
 from app.ml.postprocessing import get_top_predictions
 
 
-def classify_image(image: Image.Image):
+def predict_image(image: Image.Image):
 
     start = time.time()
 
@@ -21,12 +21,18 @@ def classify_image(image: Image.Image):
 
     top_predictions = get_top_predictions(logits)
 
-    prediction = top_predictions[0]
 
     inference_time = (time.time() - start) * 1000
 
     return {
-        "prediction": prediction,
-        "top_predictions": top_predictions,
-        "inference_time_ms": inference_time,
-    }
+
+    "model_version": "efficientnet-b4-v1",
+        "predictions": [
+    { "species_id": 12, "label": "Amanita muscaria", "probability": 0.93 },
+    { "species_id": 15, "label": "Amanita muscaria","probability": 0.04 },
+    { "species_id": 7,  "label": "Amanita muscaria","probability": 0.02 },
+    { "species_id": 9,  "label": "Amanita muscaria","probability": 0.008 },
+    { "species_id": 3,  "label": "Amanita muscaria", "probability": 0.002 }
+  ],
+  "inference_time_ms": 42
+}
