@@ -3,20 +3,24 @@ package repository
 import (
 	"Info_Service/internal/dto"
 	appErr "Info_Service/internal/errors"
+	"Info_Service/internal/model"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"strings"
 )
 
 type SpeciesRepository interface {
-	GetByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error)
 	GetAll(ctx context.Context, page, limit int, sortBy, order string) ([]dto.SpeciesResponse, int, error)
+	GetSpeciesByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error)
+	GetSpeciesByIDs(ctx context.Context, ids []int64) ([]dto.SpeciesResponse, error)
 	GetByCategory(ctx context.Context, categoryID int64, page, limit int) ([]dto.SpeciesResponse, int, error)
 	SearchByName(ctx context.Context, name string, page, limit int) ([]dto.SpeciesResponse, int, error)
 	GetFiltered(ctx context.Context, filter dto.SpeciesFilter) ([]dto.SpeciesResponse, int, error)
+	GetImagesBySpeciesIDs(ctx context.Context, ids []int64) (map[int64][]string, error)
 }
 
 type speciesRepo struct {
@@ -35,7 +39,6 @@ SELECT
     s.description AS "description",
     s.edibility AS "edibility",
     s.toxicity_level AS "toxicity_level",
-    s.reference_image_url AS "reference_image_url",
     
 	c.id   AS "category.id",
 	c.name AS "category.name"
@@ -51,7 +54,7 @@ var allowedSortFields = map[string]string{
 	"edibility":       "s.edibility",
 }
 
-func (r *speciesRepo) GetByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error) {
+func (r *speciesRepo) GetSpeciesByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error) {
 	query := speciesBaseQuery + ` WHERE s.id = $1`
 	var result dto.SpeciesResponse
 	err := r.db.GetContext(ctx, &result, query, id)
@@ -62,6 +65,27 @@ func (r *speciesRepo) GetByID(ctx context.Context, id int64) (*dto.SpeciesRespon
 		return nil, err
 	}
 	return &result, nil
+}
+
+func (r *speciesRepo) GetSpeciesByIDs(ctx context.Context, ids []int64) ([]dto.SpeciesResponse, error) {
+
+	if len(ids) == 0 {
+		return []dto.SpeciesResponse{}, nil
+	}
+
+	query := speciesBaseQuery + `
+	WHERE s.id = ANY($1)
+	ORDER BY array_position($1, s.id)
+	`
+
+	var result []dto.SpeciesResponse
+
+	err := r.db.SelectContext(ctx, &result, query, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (r *speciesRepo) GetAll(ctx context.Context, page, limit int, sortBy, order string) ([]dto.SpeciesResponse, int, error) {
@@ -90,7 +114,7 @@ func (r *speciesRepo) GetByCategory(ctx context.Context, categoryID int64, page,
 	offset := (page - 1) * limit
 
 	var total int
-	countQuery := `SELECT Count(*) FROM species WHERE s.category_id = $1`
+	countQuery := `SELECT COUNT(*) FROM species s WHERE s.category_id = $1`
 	if err := r.db.GetContext(ctx, &total, countQuery); err != nil {
 		return nil, 0, err
 	}
@@ -106,8 +130,8 @@ func (r *speciesRepo) SearchByName(ctx context.Context, name string, page, limit
 
 	var total int
 	pattern := "%" + name + "%"
-	countQuery := `SELECT COUNT(*)	FROM species
-				WHERE common_name ILIKE $1 OR scientific_name ILIKE $1`
+	countQuery := `SELECT COUNT(*)	FROM species s
+				WHERE s.common_name ILIKE $1 OR s.scientific_name ILIKE $1`
 	if err := r.db.GetContext(ctx, &total, countQuery, pattern); err != nil {
 		return nil, 0, err
 	}
@@ -124,6 +148,10 @@ func (r *speciesRepo) GetFiltered(
 	ctx context.Context,
 	filter dto.SpeciesFilter,
 ) ([]dto.SpeciesResponse, int, error) {
+	if filter.Cursor != nil {
+		filter.Sort = "id"
+		filter.Order = "asc"
+	}
 
 	where := []string{}
 	args := []interface{}{}
@@ -181,7 +209,7 @@ func (r *speciesRepo) GetFiltered(
 		sortField = "s.id"
 	}
 
-	query += fmt.Sprintf(" ORDER BY %s %s LIMIT $%d", sortField, filter.Order, argPos)
+	query += fmt.Sprintf(" ORDER BY %s %s, s.id ASC LIMIT $%d", sortField, filter.Order, argPos)
 	args = append(args, filter.Limit)
 
 	if filter.Cursor == nil {
@@ -194,4 +222,32 @@ func (r *speciesRepo) GetFiltered(
 	err := r.db.SelectContext(ctx, &result, query, args...)
 
 	return result, total, err
+}
+func (r *speciesRepo) GetImagesBySpeciesIDs(ctx context.Context, ids []int64) (map[int64][]string, error) {
+
+	if len(ids) == 0 {
+		return map[int64][]string{}, nil
+	}
+
+	query := `
+		SELECT species_id, image_path
+		FROM species_images
+		WHERE species_id = ANY($1)
+		ORDER BY species_id, is_primary DESC, id ASC
+	`
+
+	var rows []model.SpeciesImage
+
+	err := r.db.SelectContext(ctx, &rows, query, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[int64][]string, len(ids))
+
+	for _, row := range rows {
+		result[row.SpeciesID] = append(result[row.SpeciesID], row.ImagePath)
+	}
+
+	return result, nil
 }

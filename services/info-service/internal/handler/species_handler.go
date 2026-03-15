@@ -41,6 +41,32 @@ func (h *SpeciesHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+func (h *SpeciesHandler) GetByIDs(c *gin.Context) {
+	idsParam := c.Query("ids")
+	if strings.TrimSpace(idsParam) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": appErr.ErrInvalidIDs.Error()})
+		return
+	}
+	parts := strings.Split(idsParam, ",")
+	ids := make([]int64, 0, len(parts))
+	for _, p := range parts {
+		id, err := strconv.ParseInt(strings.TrimSpace(p), 10, 64)
+		if err != nil || id <= 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": appErr.ErrInvalidID.Error()})
+			return
+		}
+		ids = append(ids, id)
+	}
+
+	result, err := h.service.GetByIDs(c.Request.Context(), ids)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": appErr.ErrInternal.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 func (h *SpeciesHandler) GetAll(c *gin.Context) {
 	page, limit, err := parsePageAndLimit(c.DefaultQuery("page", "1"), c.DefaultQuery("limit", "10"))
 	if err != nil {
@@ -90,7 +116,7 @@ func (h *SpeciesHandler) SearchByName(c *gin.Context) {
 
 	name := c.Query("name")
 	if strings.TrimSpace(name) == "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": appErr.ErrEmptySearchQuery.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": appErr.ErrEmptySearchQuery.Error()})
 		return
 	}
 

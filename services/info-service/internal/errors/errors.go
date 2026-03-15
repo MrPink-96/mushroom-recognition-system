@@ -13,4 +13,5 @@ var (
 	ErrInvalidEdibility  = errors.New("invalid edibility (must be number)")
 	ErrInvalidToxicity   = errors.New("invalid toxicity_max (must be number)")
 	ErrEmptySearchQuery  = errors.New("search query cannot be empty")
+	ErrInvalidIDs        = errors.New("ids parameter required")
 )
