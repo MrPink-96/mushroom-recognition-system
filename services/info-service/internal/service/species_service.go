@@ -29,8 +29,68 @@ func (s *SpeciesService) buildPaginated(data []dto.SpeciesResponse, total, page,
 	}
 }
 
+func (s *SpeciesService) attachImages(ctx context.Context, species []dto.SpeciesResponse) error {
+
+	if len(species) == 0 {
+		return nil
+	}
+
+	ids := make([]int64, 0, len(species))
+
+	for _, sp := range species {
+		ids = append(ids, sp.ID)
+	}
+
+	imagesMap, err := s.repo.GetImagesBySpeciesIDs(ctx, ids)
+	if err != nil {
+		return err
+	}
+
+	for i := range species {
+		if imgs, ok := imagesMap[species[i].ID]; ok {
+			species[i].Images = imgs
+		} else {
+			species[i].Images = []string{}
+		}
+	}
+
+	return nil
+}
+
 func (s *SpeciesService) GetByID(ctx context.Context, id int64) (*dto.SpeciesResponse, error) {
-	return s.repo.GetByID(ctx, id)
+
+	species, err := s.repo.GetSpeciesByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	list := []dto.SpeciesResponse{*species}
+
+	if err := s.attachImages(ctx, list); err != nil {
+		return nil, err
+	}
+
+	*species = list[0]
+
+	return species, nil
+}
+
+func (s *SpeciesService) GetByIDs(ctx context.Context, ids []int64) ([]dto.SpeciesResponse, error) {
+
+	if len(ids) == 0 {
+		return []dto.SpeciesResponse{}, nil
+	}
+
+	data, err := s.repo.GetSpeciesByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.attachImages(ctx, data); err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func (s *SpeciesService) GetAll(ctx context.Context, page, limit int, sortBy, order string) (dto.PaginatedSpeciesResponse, error) {
@@ -42,6 +102,9 @@ func (s *SpeciesService) GetAll(ctx context.Context, page, limit int, sortBy, or
 		return dto.PaginatedSpeciesResponse{}, err
 	}
 
+	if err := s.attachImages(ctx, data); err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
 	return s.buildPaginated(data, total, page, limit), nil
 }
 
@@ -53,6 +116,9 @@ func (s *SpeciesService) GetByCategory(ctx context.Context, categoryID int64, pa
 		return dto.PaginatedSpeciesResponse{}, err
 	}
 
+	if err := s.attachImages(ctx, data); err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
 	return s.buildPaginated(data, total, page, limit), nil
 
 }
@@ -62,6 +128,9 @@ func (s *SpeciesService) SearchByName(ctx context.Context, name string, page, li
 
 	data, total, err := s.repo.SearchByName(ctx, name, page, limit)
 	if err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
+	if err := s.attachImages(ctx, data); err != nil {
 		return dto.PaginatedSpeciesResponse{}, err
 	}
 	return s.buildPaginated(data, total, page, limit), nil
@@ -81,6 +150,9 @@ func (s *SpeciesService) GetFiltered(ctx context.Context, filter dto.SpeciesFilt
 
 	data, total, err := s.repo.GetFiltered(ctx, filter)
 	if err != nil {
+		return dto.PaginatedSpeciesResponse{}, err
+	}
+	if err := s.attachImages(ctx, data); err != nil {
 		return dto.PaginatedSpeciesResponse{}, err
 	}
 
