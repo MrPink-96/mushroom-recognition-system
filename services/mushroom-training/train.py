@@ -464,7 +464,7 @@ def get_adaptive_config(train_df, num_classes_target=10):
     # 🔥 АДАПТИВНЫЙ BATCH_SIZE (проверка GPU)
     if torch.cuda.is_available():
         gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1e9
-        batch_size = 32 if gpu_mem > 20 else (16 if gpu_mem > 12 else 8)
+        batch_size = 32 if gpu_mem > 20 else (16 if gpu_mem > 12 else 10)
     else:
         batch_size = 8
 
@@ -502,7 +502,9 @@ def create_loaders(train_ds, val_ds, batch_size, num_workers, pin_memory, prefet
 
 # -------------------- Main --------------------
 def main():
+
     print_device_info()
+    """
     for f in [
         "best_model_stage1.pth",
         "best_model_stage2.pth",
@@ -518,7 +520,7 @@ def main():
         shutil.rmtree("gradcam_stage2")
     if os.path.exists("gradcam_stage3"):
         shutil.rmtree("gradcam_stage3")
-
+    """
     global IMAGE_SIZE, BATCH_SIZE, EPOCHS_STAGE1, EPOCHS_STAGE2, EPOCHS_STAGE3, PATIENCE, LR_STAGE3
 
     # Загрузка данных
@@ -569,6 +571,20 @@ def main():
     PATIENCE = config["patience"]
     LR_STAGE3 = config["lr_stage3"]
     BATCH_SIZE = config["batch_size"]
+
+
+    # Принудительно меняем настройки для Stage 3
+    EPOCHS_STAGE3 = 15  # Было 60 → 15 эпох
+    PATIENCE = 8  # Было 20 → 8
+    LR_STAGE3 = 5e-06  # Было 2e-06 → 5e-06
+    BATCH_SIZE = 12 # Было 10 → 24 (главное ускорение!)
+
+    print(f"\n🔥 УСКОРЕННЫЕ НАСТРОЙКИ STAGE 3:")
+    print(f"   📈 EPOCHS_STAGE3={EPOCHS_STAGE3}")
+    print(f"   ⏱️ PATIENCE={PATIENCE}")
+    print(f"   🎯 LR_STAGE3={LR_STAGE3}")
+    print(f"   📦 BATCH_SIZE={BATCH_SIZE}")
+
 
     print(f"\n⚙️ Применены адаптивные настройки:")
     print(f"   📊 Классов: {len(selected_classes)}")
@@ -683,7 +699,7 @@ def main():
     print(f"Train samples: {len(train_dataset)}")
     print(f"Val samples: {len(val_dataset)}")
     print(f"Class weights range: [{class_weights_tensor.min():.3f}, {class_weights_tensor.max():.3f}]")
-
+    """
     # ==================== STAGE 1 ====================
     print("\n=== STAGE 1: Classifier only ===")
     IMAGE_SIZE = 224
@@ -820,7 +836,7 @@ def main():
 
     gc.collect()
     torch.cuda.empty_cache()
-
+    """
     # ==================== STAGE 3 ====================
 
     best_val_acc = 0
@@ -834,9 +850,14 @@ def main():
     for param in model.parameters():
         param.requires_grad = True
 
+    # ✅ ДОБАВИТЬ weights_only=True:
     if os.path.exists("best_model_stage2.pth"):
-        model.load_state_dict(torch.load("best_model_stage2.pth", map_location=DEVICE))
+        model.load_state_dict(torch.load("best_model_stage2.pth", map_location=DEVICE, weights_only=True))
         model = model.to(memory_format=torch.channels_last)
+        print("✅ Загружена модель из best_model_stage2.pth")
+    else:
+        print("⚠️ best_model_stage2.pth не найден! Начинаем с нуля...")
+
 
     ema = ModelEMA(model, decay=EMA_DECAY)
 
@@ -848,7 +869,7 @@ def main():
     scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
         optimizer,
         #T_0=EPOCHS_STAGE3 // 2, # EPOCHS_STAGE3,
-        T_0=10,
+        T_0=8,
         T_mult=2,
         eta_min=1e-6
     )
