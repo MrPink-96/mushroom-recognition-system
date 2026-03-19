@@ -20,7 +20,7 @@ func NewHealthHandler(mlClient client.MLClient, infoClient client.InfoClient) *H
 func (h *HealthHandler) Check(c *gin.Context) {
 	err := h.mlClient.Health(c.Request.Context())
 	if err != nil {
-		if errors.Is(err, appErr.ErrInfoUnavailable) {
+		if errors.Is(err, appErr.ErrMLUnavailable) {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
 				"status": "ml-service down",
 			})
