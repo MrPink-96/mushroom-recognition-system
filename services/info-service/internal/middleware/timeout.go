@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,20 @@ func TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc {
 		defer cancel()
 
 		c.Request = c.Request.WithContext(ctx)
+		done := make(chan struct{})
 
-		c.Next()
+		go func() {
+			c.Next()
+			close(done)
+		}()
+
+		select {
+		case <-done:
+		case <-ctx.Done():
+			c.AbortWithStatusJSON(http.StatusGatewayTimeout, gin.H{
+				"error": "request timeout",
+			})
+		}
+
 	}
 }
