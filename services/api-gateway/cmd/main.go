@@ -55,7 +55,7 @@ func main() {
 		}
 	}()
 
-	quit := make(chan os.Signal, 1) // Зачем буфер?
+	quit := make(chan os.Signal, 1)
 
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
