@@ -37,3 +37,32 @@ vendor/
 
 # OS
 .DS_Store
+Thumbs.db
+
+# Node.js / Next.js
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# Package manager
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.local
