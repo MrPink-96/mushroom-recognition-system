@@ -86,6 +86,6 @@ func (c *mlClient) Predict(ctx context.Context, originalReq *http.Request) (*dto
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-	log.Print(result)
+
 	return &result, nil
 }
