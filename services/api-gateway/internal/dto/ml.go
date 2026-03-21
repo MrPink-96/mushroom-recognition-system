@@ -1,8 +1,8 @@
 package dto
 
 type MLPrediction struct {
-	ClassID    int64   `json:"class_id"`
-	Confidence float64 `json:"confidence"`
+	ClassID    int64   `json:"species_id"`
+	Confidence float64 `json:"probability"`
 }
 
 type MLResponse struct {

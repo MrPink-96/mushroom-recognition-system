@@ -3,18 +3,16 @@ package client
 import (
 	"api-gateway/internal/dto"
 	appErr "api-gateway/internal/errors"
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
-	"mime/multipart"
 	"net/http"
 )
 
 type MLClient interface {
-	Predict(ctx context.Context, image []byte) (*dto.MLResponse, error)
+	Predict(ctx context.Context, req *http.Request) (*dto.MLResponse, error)
 	Health(ctx context.Context) error
 }
 
@@ -53,28 +51,20 @@ func (c *mlClient) Health(ctx context.Context) error {
 
 }
 
-func (c *mlClient) Predict(ctx context.Context, image []byte) (*dto.MLResponse, error) {
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
+func (c *mlClient) Predict(ctx context.Context, originalReq *http.Request) (*dto.MLResponse, error) {
 
-	part, err := writer.CreateFormFile("file", "image.jpg")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create form file: %w", err)
-	}
-	_, err = part.Write(image)
-	if err != nil {
-		return nil, fmt.Errorf("failed to write image: %w", err)
-	}
-	err = writer.Close()
-	if err != nil {
-		return nil, fmt.Errorf("failed to close writer: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/predict", body)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/predict", originalReq.Body)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header = make(http.Header)
+
+	for k, v := range originalReq.Header {
+		if k == "Host" || k == "Content-Length" {
+			continue
+		}
+		req.Header[k] = append([]string(nil), v...)
+	}
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -96,6 +86,6 @@ func (c *mlClient) Predict(ctx context.Context, image []byte) (*dto.MLResponse, 
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-
+	log.Print(result)
 	return &result, nil
 }

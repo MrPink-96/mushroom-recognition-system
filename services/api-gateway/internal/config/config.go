@@ -12,7 +12,7 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		Port:    getEnv("PORT", "8080"),
+		Port:    getEnv("PORT", ":8080"),
 		MLURL:   getEnv("ML_SERVICE_URL", "http://localhost:8000"),
 		InfoURL: getEnv("INFO_SERVICE_URL", "http://localhost:8081"),
 	}

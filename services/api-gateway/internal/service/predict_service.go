@@ -4,6 +4,7 @@ import (
 	"api-gateway/internal/client"
 	"api-gateway/internal/dto"
 	"context"
+	"net/http"
 )
 
 const topK = 5
@@ -17,8 +18,8 @@ func NewPredictService(mlClient client.MLClient, infoClient client.InfoClient) *
 	return &PredictService{mlClient: mlClient, infoClient: infoClient}
 }
 
-func (s *PredictService) Predict(ctx context.Context, image []byte) (*dto.PredictResponse, error) {
-	mlResp, err := s.mlClient.Predict(ctx, image)
+func (s *PredictService) Predict(ctx context.Context, req *http.Request) (*dto.PredictResponse, error) {
+	mlResp, err := s.mlClient.Predict(ctx, req)
 	if err != nil {
 		return nil, err
 	}
