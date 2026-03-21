@@ -1,12 +1,14 @@
 from pydantic import BaseModel
+from typing import List
 
 
 class Prediction(BaseModel):
     species_id: int
+    label: str
     probability: float
 
 
 class ClassificationResponse(BaseModel):
-    prediction: Prediction
-    top_predictions: list[Prediction]
+    model_version: str
+    predictions: List[Prediction]
     inference_time_ms: float
