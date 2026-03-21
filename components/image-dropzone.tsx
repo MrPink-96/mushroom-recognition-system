@@ -50,15 +50,15 @@ export function ImageDropzone({ onFileSelect, disabled }: ImageDropzoneProps) {
 
   if (preview) {
     return (
-      <div className="relative overflow-hidden rounded-xl border bg-card">
-        <div className="relative aspect-video w-full">
+      <div className="relative flex flex-col items-center">
+        <div className="relative inline-block overflow-hidden rounded-xl border bg-card shadow-sm">
           <img
             src={preview}
             alt="Загруженное изображение"
-            className="h-full w-full object-contain"
+            className="max-h-[500px] w-auto object-contain"
           />
         </div>
-        <div className="flex items-center justify-between border-t bg-muted/30 px-4 py-3">
+        <div className="mt-3 flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <ImageIcon className="h-4 w-4" />
             <span className="truncate max-w-[200px]">{fileName}</span>

@@ -7,7 +7,7 @@ export async function predictMushroom(
 ): Promise<{ data?: PredictResponse; error?: string }> {
   try {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", file, file.name);
 
     const response = await fetch(`${API_URL}/predict`, {
       method: "POST",
