@@ -16,6 +16,9 @@ __pycache__/
 .venv/
 venv/
 .env
+mushroom-training/*
+!mushroom-training/train.py
+!mushroom-training/main.py
 
 # models
 *.pt
