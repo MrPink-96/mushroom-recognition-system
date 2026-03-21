@@ -6,8 +6,8 @@ class Settings(BaseSettings):
     MODEL_PATH: str = "models/best_model_ema_final.pth"
     CLASSES_PATH: str = "models/classes.npy"
     
-    # Model config
-    MODEL_VERSION: str = "efficientnet-b4-v1"
+    # Model config (MODEL_VERSION will be auto-detected from weights)
+    MODEL_VERSION: str = "efficientnet-auto"
     IMAGE_SIZE: int = 320
     NUM_CLASSES: int = 0  # Will be set from classes.npy
     

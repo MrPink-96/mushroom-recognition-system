@@ -40,7 +40,7 @@ def predict_image(image: Image.Image) -> Dict[str, Any]:
     inference_time = (time.time() - start) * 1000
 
     return {
-        "model_version": settings.MODEL_VERSION,
+        "model_version": ModelLoader.get_model_version(),
         "predictions": predictions,
         "inference_time_ms": round(inference_time, 2)
     }
