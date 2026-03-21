@@ -38,11 +38,18 @@ class ModelLoader:
             # Handle different checkpoint formats
             if isinstance(checkpoint, dict):
                 if "model" in checkpoint:
+                    # Full model saved
                     model = checkpoint["model"]
                 elif "state_dict" in checkpoint:
-                    # Need to reconstruct model architecture
+                    # State dict wrapped in checkpoint
                     model = cls._build_model_from_state_dict(checkpoint["state_dict"])
+                elif cls._is_state_dict(checkpoint):
+                    # Raw state dict (OrderedDict with layer weights)
+                    logger.info("Detected raw state_dict format")
+                    model = cls._build_model_from_state_dict(checkpoint)
                 else:
+                    # Log keys for debugging
+                    logger.error(f"Unknown checkpoint keys: {list(checkpoint.keys())[:10]}")
                     raise ValueError("Unknown checkpoint format")
             else:
                 model = checkpoint
@@ -68,6 +75,16 @@ class ModelLoader:
         except Exception as e:
             logger.error(f"Failed to load classes: {e}")
             raise RuntimeError("Classes loading failed") from e
+    
+    @classmethod
+    def _is_state_dict(cls, checkpoint: dict) -> bool:
+        """Check if dict is a raw state_dict (contains layer weight keys)."""
+        # State dict keys typically look like: "conv_stem.weight", "bn1.weight", "classifier.weight"
+        sample_keys = list(checkpoint.keys())[:5]
+        return any(
+            "weight" in key or "bias" in key or "running_mean" in key
+            for key in sample_keys
+        )
     
     @classmethod
     def _build_model_from_state_dict(cls, state_dict):
