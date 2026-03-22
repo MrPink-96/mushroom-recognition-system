@@ -1,10 +1,13 @@
 package service
 
 import (
+	"Info_Service/internal/config"
 	"Info_Service/internal/dto"
 	"Info_Service/internal/repository"
 	"context"
+	"fmt"
 	"math"
+	"strings"
 )
 
 type SpeciesService struct {
@@ -45,15 +48,36 @@ func (s *SpeciesService) attachImages(ctx context.Context, species []dto.Species
 	if err != nil {
 		return err
 	}
-
+	//
+	cfg := config.Load()
+	imageBaseURL := fmt.Sprintf("http://localhost:%s", cfg.Port)
 	for i := range species {
 		if imgs, ok := imagesMap[species[i].ID]; ok {
-			species[i].Images = imgs
+
+			urls := make([]string, len(imgs))
+			for j, img := range imgs {
+				if strings.HasPrefix(img, "http") {
+					urls[j] = img
+				} else {
+					// Иначе добавляем базовый URL
+					urls[j] = fmt.Sprintf("%s%s", imageBaseURL, img)
+				}
+			}
+			species[i].Images = urls
 		} else {
 			species[i].Images = []string{}
 		}
 	}
-
+	//
+	/*
+		for i := range species {
+			if imgs, ok := imagesMap[species[i].ID]; ok {
+				species[i].Images = imgs
+			} else {
+				species[i].Images = []string{}
+			}
+		}
+	*/
 	return nil
 }
 

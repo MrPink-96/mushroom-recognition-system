@@ -8,7 +8,9 @@ from app.services.preprocessing import preprocess_image
 from app.services.detection import detect_mushroom
 from app.ml.inference import run_inference
 from app.ml.postprocessing import get_top_predictions
+from app.mapper.class_mapper import ClassMapper
 
+mapper = ClassMapper("mapping.json")
 
 def predict_image(image: Image.Image) -> Dict[str, Any]:
     """
@@ -35,7 +37,28 @@ def predict_image(image: Image.Image) -> Dict[str, Any]:
     logits = run_inference(model, tensor)
 
     # Получение топ-N предсказаний с названиями классов
-    predictions = get_top_predictions(logits)
+    model_predictions = get_top_predictions(logits)
+
+    predictions = []
+
+    for p in model_predictions:
+        class_id = p["class_id"]
+        confidence = p["confidence"]
+        label = p["label"]
+
+        if class_id is None or confidence is None:
+            continue
+
+        species_id = mapper.to_species_id(class_id)
+
+        if species_id is None:
+            continue
+
+        predictions.append({
+            "species_id": species_id,
+            "confidence": confidence,
+            "label": label,
+        })
 
     inference_time = (time.time() - start) * 1000
 

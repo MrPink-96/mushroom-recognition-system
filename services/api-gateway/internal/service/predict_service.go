@@ -38,15 +38,15 @@ func (s *PredictService) Predict(ctx context.Context, req *http.Request) (*dto.P
 	preds := make([]dto.MLPrediction, 0, len(rawPreds))
 
 	for _, p := range rawPreds {
-		if p.ClassID <= 0 || p.Confidence <= 0 {
+		if p.SpeciesID <= 0 || p.Confidence <= 0 {
 			continue
 		}
 
-		if _, exists := seen[p.ClassID]; exists {
+		if _, exists := seen[p.SpeciesID]; exists {
 			continue
 		}
 
-		seen[p.ClassID] = struct{}{}
+		seen[p.SpeciesID] = struct{}{}
 		preds = append(preds, p)
 	}
 
@@ -56,7 +56,7 @@ func (s *PredictService) Predict(ctx context.Context, req *http.Request) (*dto.P
 
 	ids := make([]int64, 0, len(preds))
 	for _, p := range preds {
-		ids = append(ids, p.ClassID)
+		ids = append(ids, p.SpeciesID)
 	}
 
 	infResp, err := s.infoClient.GetByIDs(ctx, ids)
@@ -72,7 +72,7 @@ func (s *PredictService) Predict(ctx context.Context, req *http.Request) (*dto.P
 	result := make([]dto.PredictionResult, 0, len(preds))
 
 	for _, p := range preds {
-		sp, ok := idToSpecies[p.ClassID]
+		sp, ok := idToSpecies[p.SpeciesID]
 		if !ok {
 			continue
 		}

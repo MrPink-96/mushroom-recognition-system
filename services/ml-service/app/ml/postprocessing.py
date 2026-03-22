@@ -16,9 +16,9 @@ def get_top_predictions(logits: torch.Tensor) -> List[Dict[str, Any]]:
         class_idx = int(idx)
         label = ModelLoader.get_class_name(class_idx)
         results.append({
-            "species_id": class_idx,
+            "class_id": class_idx,
             "label": label,
-            "probability": round(float(prob), 6),
+            "confidence": round(float(prob), 6),
         })
 
     return results
