@@ -1,39 +1,48 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import { Upload, X, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ImageDropzoneProps {
+    file: File | null;
     onFileSelect: (file: File | null) => void;
     disabled?: boolean;
 }
 
-export function ImageDropzone({ onFileSelect, disabled }: ImageDropzoneProps) {
+export function ImageDropzone({
+    file,
+    onFileSelect,
+    disabled,
+}: ImageDropzoneProps) {
     const [preview, setPreview] = useState<string | null>(null);
-    const [fileName, setFileName] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!file) {
+            setPreview(null);
+            return;
+        }
+
+        const url = URL.createObjectURL(file);
+        setPreview(url);
+
+        return () => {
+            URL.revokeObjectURL(url);
+        };
+    }, [file]);
 
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
-            const file = acceptedFiles[0];
-            if (file) {
-                setFileName(file.name);
-                const reader = new FileReader();
-                reader.onload = () => {
-                    setPreview(reader.result as string);
-                };
-                reader.readAsDataURL(file);
-                onFileSelect(file);
+            if (acceptedFiles[0]) {
+                onFileSelect(acceptedFiles[0]);
             }
         },
         [onFileSelect]
     );
 
     const removeFile = () => {
-        setPreview(null);
-        setFileName(null);
         onFileSelect(null);
     };
 
@@ -44,34 +53,36 @@ export function ImageDropzone({ onFileSelect, disabled }: ImageDropzoneProps) {
             "image/png": [".png"],
         },
         maxFiles: 1,
-        maxSize: 10 * 1024 * 1024, // 10MB
         disabled,
     });
 
     if (preview) {
         return (
-            <div className="relative flex flex-col items-center">
-                <div className="relative inline-block overflow-hidden rounded-xl border bg-card shadow-sm">
+            <div className="flex flex-col items-center">
+                <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
                     <img
                         src={preview}
-                        alt="Загруженное изображение"
-                        className="max-h-[500px] w-auto object-contain"
+                        alt="preview"
+                        className="max-h-[500px] object-contain"
                     />
                 </div>
+
                 <div className="mt-3 flex items-center gap-4">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <ImageIcon className="h-4 w-4" />
-                        <span className="truncate max-w-[200px]">{fileName}</span>
+                        <span className="truncate max-w-[200px]">
+                            {file?.name || "image.png"}
+                        </span>
                     </div>
+
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={removeFile}
                         disabled={disabled}
-                        className="text-muted-foreground hover:text-destructive"
                     >
                         <X className="h-4 w-4" />
-                        <span className="ml-1">Удалить</span>
+                        Удалить
                     </Button>
                 </div>
             </div>
@@ -82,25 +93,25 @@ export function ImageDropzone({ onFileSelect, disabled }: ImageDropzoneProps) {
         <div
             {...getRootProps()}
             className={cn(
-                "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed bg-card p-12 transition-colors",
+                "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed bg-card p-12",
                 isDragActive
                     ? "border-primary bg-primary/5"
-                    : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
-                disabled && "cursor-not-allowed opacity-50"
+                    : "border-muted-foreground/25",
+                disabled && "opacity-50"
             )}
         >
             <input {...getInputProps()} />
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <Upload className="h-8 w-8 text-primary" />
-            </div>
-            <p className="mt-4 text-center text-lg font-medium text-foreground">
-                {isDragActive ? "Отпустите файл здесь" : "Перетащите изображение сюда"}
+
+            <Upload className="h-8 w-8 text-primary" />
+
+            <p className="mt-4 text-lg">
+                {isDragActive
+                    ? "Отпустите файл здесь"
+                    : "Перетащите изображение сюда"}
             </p>
-            <p className="mt-2 text-center text-sm text-muted-foreground">
+
+            <p className="text-sm text-muted-foreground">
                 или нажмите для выбора файла
-            </p>
-            <p className="mt-4 text-center text-xs text-muted-foreground">
-                Поддерживаются JPG и PNG до 10 МБ
             </p>
         </div>
     );
