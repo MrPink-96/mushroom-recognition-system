@@ -47,7 +47,7 @@ func main() {
 	r.Use(cors.Default())
 	r.Use(middleware.TimeoutMiddleware(5 * time.Second))
 
-	r.Static("/images", "./images")
+	//r.Static("/images", "./images")
 
 	r.GET("/health", healthHandler.Check)
 
@@ -61,9 +61,6 @@ func main() {
 	r.GET("/categories", categoryHandler.GetAll)
 	r.GET("/categories/:id", categoryHandler.GetByID)
 	r.GET("/categories/search", categoryHandler.SearchByName)
-
-	///log.Println("Info Servicetarted on: 8080")
-	///r.Run(":" + cfg.Port)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,

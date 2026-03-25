@@ -4,18 +4,20 @@ import (
 	"api-gateway/internal/client"
 	"api-gateway/internal/dto"
 	"context"
+	"fmt"
 	"net/http"
 )
 
 const topK = 5
 
 type PredictService struct {
-	mlClient   client.MLClient
-	infoClient client.InfoClient
+	mlClient        client.MLClient
+	infoClient      client.InfoClient
+	imageServiceURL string
 }
 
-func NewPredictService(mlClient client.MLClient, infoClient client.InfoClient) *PredictService {
-	return &PredictService{mlClient: mlClient, infoClient: infoClient}
+func NewPredictService(mlClient client.MLClient, infoClient client.InfoClient, imageServiceURL string) *PredictService {
+	return &PredictService{mlClient: mlClient, infoClient: infoClient, imageServiceURL: imageServiceURL}
 }
 
 func (s *PredictService) Predict(ctx context.Context, req *http.Request) (*dto.PredictResponse, error) {
@@ -76,7 +78,16 @@ func (s *PredictService) Predict(ctx context.Context, req *http.Request) (*dto.P
 		if !ok {
 			continue
 		}
+		//
+		imageURLs := make([]string, len(sp.Images))
+		for i, imgID := range sp.Images {
 
+			// Формировать полный URL, из БД получать только имя изображения ? : http://image-service:8082/images/amanita_1.jpg imageURLs[i] = fmt.Sprintf("%s/images/%s", s.imageServiceURL, imgID
+			imageURLs[i] = fmt.Sprintf("%s%s", s.imageServiceURL, imgID)
+			fmt.Println(imageURLs[i])
+		}
+		sp.Images = imageURLs
+		//
 		sp.Confidence = p.Confidence
 		result = append(result, sp)
 	}

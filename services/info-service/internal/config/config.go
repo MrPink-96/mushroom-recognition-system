@@ -15,7 +15,7 @@ func Load() Config {
 		port = "8081"
 	}
 
-	//	dsn := os.Getenv("DATABASE_URL")
+	dsn := os.Getenv("DATABASE_URL")
 
 	return Config{
 		Port: port,

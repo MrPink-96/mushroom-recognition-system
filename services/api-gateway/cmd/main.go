@@ -25,7 +25,7 @@ func main() {
 	mlClient := client.NewMLClient(cfg.MLURL, httpClient)
 	infoClient := client.NewInfoClient(cfg.InfoURL, httpClient)
 
-	predictService := service.NewPredictService(mlClient, infoClient)
+	predictService := service.NewPredictService(mlClient, infoClient, cfg.ImageURL)
 
 	healthHandler := handler.NewHealthHandler(mlClient, infoClient)
 	predictHandler := handler.NewPredictHandler(predictService)
