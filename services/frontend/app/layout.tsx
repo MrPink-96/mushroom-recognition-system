@@ -23,19 +23,19 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({
-  children,
-}: {
+                                     children,
+                                   }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
+      <html lang="ru" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </div>
       </body>
-    </html>
+      </html>
   );
 }
