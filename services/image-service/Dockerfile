@@ -1,5 +1,5 @@
 # ---------- 1. BUILD STAGE ----------
-FROM golang:1.24.7 AS builder
+FROM golang:1.25.8 AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,8 @@ FROM debian:bookworm-slim
 WORKDIR /app
 
 COPY --from=builder /app/app .
+COPY --from=builder /app/images ./images
 
-EXPOSE 8081
+EXPOSE 8082
 
-CMD ["./app"]
+ENTRYPOINT ["./app"]

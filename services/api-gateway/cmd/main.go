@@ -41,7 +41,7 @@ func main() {
 	r.GET("/species/filter", speciesHandler.GetFiltered)
 
 	srv := http.Server{
-		Addr:         cfg.Port,
+		Addr:         ":" + cfg.Port,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 15 * time.Second,

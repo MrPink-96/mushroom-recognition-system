@@ -1,0 +1,89 @@
+services:
+  frontend:
+    build: ./services/frontend
+    environment:
+      PORT: ${FRONT_PORT:-3000}
+      API_HOST: api-gateway
+    ports:
+      - "${FRONT_PORT:-3000}:${FRONT_PORT:-3000}"
+    depends_on:
+      - api-gateway
+    networks:
+      - mushroom-network
+
+  api-gateway:
+    build: ./services/api-gateway
+    environment:
+      PORT: ${API_PORT:-8080}
+      ML_SERVICE_URL: http://ml-service:${ML_PORT:-8000}
+      INFO_SERVICE_URL: http://info-service:${INFO_PORT:-8081}
+      IMAGE_SERVICE_URL: http://localhost:${IMAGE_PORT:-8082}
+    ports:
+      - "${API_PORT:-8080}:${API_PORT:-8080}"
+    depends_on:
+      - info-service
+      - ml-service
+      - image-service
+    networks:
+      - mushroom-network
+
+  ml-service:
+    build: ./services/ml-service
+    environment:
+      PORT: ${ML_PORT:-8000}
+    ports:
+      - "${ML_PORT:-8000}:${ML_PORT:-8000}"
+    networks:
+      - mushroom-network
+
+  info-service:
+    build: ./services/info-service
+    environment:
+      PORT: ${INFO_PORT:-8081}
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}?sslmode=disable
+      IMAGE_BASE_URL: http://image-service:${IMAGE_PORT:-8082}
+    ports:
+      - "${INFO_PORT:-8081}:${INFO_PORT:-8081}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mushroom-network
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mushroom-network
+
+  image-service:
+    build: ./services/image-service
+    environment:
+      PORT: ${IMAGE_PORT:-8082}
+      BASE_URL: http://image-service:${IMAGE_PORT:-8082}
+    ports:
+      - "${IMAGE_PORT:-8082}:${IMAGE_PORT:-8082}"
+    volumes:
+      - image-data:/app/images
+    networks:
+      - mushroom-network
+
+volumes:
+  db-data:
+  image-data:
+
+networks:
+  mushroom-network:
+    driver: bridge

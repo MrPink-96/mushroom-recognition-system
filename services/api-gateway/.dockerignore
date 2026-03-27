@@ -1,0 +1,77 @@
+# Git
+.git/
+.gitignore
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+app
+api-gateway
+
+# Dependency directories
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+*.cover
+*.coverprofile
+coverage.out
+coverage.html
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Documentation
+README.md
+*.md
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.githooks/
+
+# Binaries (если собираете локально)
+/bin/
+/dist/
+
+# Configs (если есть локальные)
+config.local.yaml
+config.dev.yaml
+*.local.yaml
+
+# Scripts
+scripts/
+*.sh
+*.bat

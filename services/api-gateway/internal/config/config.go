@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/joho/godotenv"
 	"os"
 )
 
@@ -12,8 +13,9 @@ type Config struct {
 }
 
 func Load() *Config {
+	_ = godotenv.Load()
 	return &Config{
-		Port:     getEnv("PORT", ":8080"),
+		Port:     getEnv("PORT", "8080"),
 		MLURL:    getEnv("ML_SERVICE_URL", "http://localhost:8000"),
 		InfoURL:  getEnv("INFO_SERVICE_URL", "http://localhost:8081"),
 		ImageURL: getEnv("IMAGE_SERVICE_URL", "http://localhost:8082"),
