@@ -41,7 +41,7 @@ services:
     environment:
       PORT: ${INFO_PORT:-8081}
       DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}?sslmode=disable
-      IMAGE_BASE_URL: http://image-service:${IMAGE_PORT:-8082}
+      #IMAGE_BASE_URL: http://image-service:${IMAGE_PORT:-8082}
     ports:
       - "${INFO_PORT:-8081}:${INFO_PORT:-8081}"
     depends_on:
@@ -72,7 +72,7 @@ services:
     build: ./services/image-service
     environment:
       PORT: ${IMAGE_PORT:-8082}
-      BASE_URL: http://image-service:${IMAGE_PORT:-8082}
+      #BASE_URL: http://image-service:${IMAGE_PORT:-8082}
     ports:
       - "${IMAGE_PORT:-8082}:${IMAGE_PORT:-8082}"
     volumes:
