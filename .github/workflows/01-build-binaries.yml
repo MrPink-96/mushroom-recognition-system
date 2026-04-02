@@ -35,6 +35,9 @@ jobs:
       - name: Build binary
         run: CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/main.go
 
+      - name: Check files
+        run: ls -la
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -62,6 +65,9 @@ jobs:
 
       - name: Build binary
         run:  CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/main.go
+
+      - name: Check files
+        run: ls -la
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -117,6 +123,9 @@ jobs:
       - name: Build binary
         run: CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/main.go
 
+      - name: Check files
+        run: ls -la
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -148,6 +157,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Check files
+        run: ls -la
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
