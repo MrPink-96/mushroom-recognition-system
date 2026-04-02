@@ -5,7 +5,7 @@ RUN addgroup -g 1000 appgroup && \
 
 WORKDIR /app
 
-COPY bin/app /app/app
+COPY app /app/app
 
 RUN chown appuser:appgroup /app/app && \
     chmod +x /app/app

@@ -20,7 +20,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: api-gateway-binary
-          path: bin
+          path: .
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
           repository: ${{ github.repository }}
@@ -53,7 +53,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: info-service-binary
-          path: bin
+          path: .
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
           repository: ${{ github.repository }}
@@ -119,7 +119,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: image-service-binary
-          path: bin
+          path: .
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
           repository: ${{ github.repository }}
