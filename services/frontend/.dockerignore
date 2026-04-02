@@ -1,0 +1,41 @@
+# Зависимости
+node_modules
+npm-debug.log
+
+# Сборка
+#.next
+out
+build
+
+# Окружение
+.env*.local
+.env
+
+# Система
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Документация
+README.md
+docs/
+
+# Архивы
+*.zip
+*.tar
+*.gz
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Тесты
+coverage/
+*.test.ts
+*.test.tsx
+__tests__/
