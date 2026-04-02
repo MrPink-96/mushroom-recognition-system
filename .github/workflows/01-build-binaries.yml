@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-gateway-binary
-          path: app
+          path: services/api-gateway/app
           retention-days: 1
           if-no-files-found: error
 
@@ -64,7 +64,7 @@ jobs:
         run: go mod download
 
       - name: Build binary
-        run:  CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/main.go
+        run: CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/main.go
 
       - name: Check files
         run: ls -la
@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: info-service-binary
-          path: app
+          path: services/info-service/app
           retention-days: 1
           if-no-files-found: error
 
@@ -89,8 +89,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          # cache: 'pip'
-          # cache-dependency-path: services/ml-service/requirements.txt
 
       - name: Install dependencies
         run: pip install --no-cache-dir -r requirements.txt
@@ -99,7 +97,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ml-service-binary
-          path: .
+          path: services/ml-service
           retention-days: 1
           if-no-files-found: error
 
@@ -130,7 +128,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: image-service-binary
-          path: app
+          path: services/image-service/app
           retention-days: 1
           if-no-files-found: error
 
@@ -165,11 +163,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
-          path: | 
-            .next
-            public
-            package.json
-            package-lock.json
-            node_modules
+          path: |
+            services/frontend/.next
+            services/frontend/public
+            services/frontend/package.json
+            services/frontend/package-lock.json
+            services/frontend/node_modules
           retention-days: 1
           if-no-files-found: error
