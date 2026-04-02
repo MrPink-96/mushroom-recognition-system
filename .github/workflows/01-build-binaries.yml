@@ -145,7 +145,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
-          path: |
+          path: | 
             .next
             public
             package.json

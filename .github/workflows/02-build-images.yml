@@ -23,6 +23,7 @@ jobs:
           path: bin
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -31,8 +32,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set image tag
-        run: |
-          echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-api-gateway:${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-api-gateway:${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Build docker image
         run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
@@ -56,6 +56,7 @@ jobs:
           path: bin
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -64,8 +65,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set image tag
-        run: |
-          echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-info-service:${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-info-service:${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Build docker image
         run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
@@ -89,6 +89,7 @@ jobs:
           path: .
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -97,8 +98,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set image tag
-        run: |
-          echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-ml-service:${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-ml-service:${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Build docker image
         run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
@@ -122,6 +122,7 @@ jobs:
           path: bin
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -130,8 +131,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set image tag
-        run: |
-          echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-image-service:${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-image-service:${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Build docker image
         run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
@@ -155,6 +155,7 @@ jobs:
           path: .
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -163,8 +164,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set image tag
-        run: |
-          echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-frontend:${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-frontend:${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Build docker image
         run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
