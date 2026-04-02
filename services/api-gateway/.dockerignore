@@ -63,8 +63,8 @@ docs/
 .githooks/
 
 # Binaries (если собираете локально)
-/bin/
-/dist/
+bin/*
+!bin/app
 
 # Configs (если есть локальные)
 config.local.yaml
