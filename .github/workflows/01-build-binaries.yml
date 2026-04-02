@@ -18,6 +18,7 @@ on:
       - "services/image-service/**"
       - "services/frontend/**"
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build-api-gateway:

@@ -21,6 +21,8 @@ jobs:
         with:
           name: api-gateway-binary
           path: bin
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -52,6 +54,8 @@ jobs:
         with:
           name: info-service-binary
           path: bin
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -83,6 +87,8 @@ jobs:
         with:
           name: ml-service-binary
           path: .
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -114,6 +120,8 @@ jobs:
         with:
           name: image-service-binary
           path: bin
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -145,6 +153,8 @@ jobs:
         with:
           name: frontend-build
           path: .
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
