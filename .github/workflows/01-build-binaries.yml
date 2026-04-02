@@ -23,7 +23,8 @@ jobs:
   build-api-gateway:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: services/api-gateway
+      run:
+        working-directory: services/api-gateway
     steps:
       - uses: actions/checkout@v4
 
@@ -49,7 +50,8 @@ jobs:
   build-info-service:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: services/info-service
+      run:
+        working-directory: services/info-service
     steps:
       - uses: actions/checkout@v4
 
@@ -75,7 +77,8 @@ jobs:
   build-ml-service:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: services/ml-service
+      run:
+        working-directory: services/ml-service
     steps:
       - uses: actions/checkout@v4
 
@@ -99,7 +102,8 @@ jobs:
   build-image-service:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: services/image-service
+      run:
+        working-directory: services/image-service
     steps:
       - uses: actions/checkout@v4
 
@@ -125,7 +129,8 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: services/frontend
+      run:
+        working-directory: services/frontend
     steps:
       - uses: actions/checkout@v4
 
