@@ -1,5 +1,9 @@
 name: build-binaries
 
+permissions:
+  actions: read
+  contents: read
+
 on:
   push:
     branches: ["main"]
@@ -37,6 +41,7 @@ jobs:
           name: api-gateway-binary
           path: app
           retention-days: 1
+          if-no-files-found: error
 
   build-info-service:
     runs-on: ubuntu-latest
@@ -64,6 +69,7 @@ jobs:
           name: info-service-binary
           path: app
           retention-days: 1
+          if-no-files-found: error
 
   build-ml-service:
     runs-on: ubuntu-latest
@@ -89,6 +95,7 @@ jobs:
           name: ml-service-binary
           path: .
           retention-days: 1
+          if-no-files-found: error
 
   build-image-service:
     runs-on: ubuntu-latest
@@ -116,6 +123,7 @@ jobs:
           name: image-service-binary
           path: app
           retention-days: 1
+          if-no-files-found: error
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -152,3 +160,4 @@ jobs:
             package-lock.json
             node_modules
           retention-days: 1
+          if-no-files-found: error
