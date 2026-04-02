@@ -1,0 +1,78 @@
+services:
+  api-gateway:
+    image: ${DOCKERHUB_USERNAME}/mushroom-api-gateway:${IMAGE_TAG}
+    environment:
+      - PORT=8080
+      - ML_SERVICE_URL=http://ml-service:8000
+      - INFO_SERVICE_URL=http://info-service:8081
+      - IMAGE_SERVICE_URL=http://image-service:8082
+    networks:
+      - mushroom-network
+    restart: unless-stopped
+
+  info-service:
+    image: ${DOCKERHUB_USERNAME}/mushroom-info-service:${IMAGE_TAG}
+    environment:
+      - PORT=8081
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mushroom-network
+    restart: unless-stopped
+
+  ml-service:
+    image: ${DOCKERHUB_USERNAME}/mushroom-ml-service:${IMAGE_TAG}
+    environment:
+      - PORT=8000
+    networks:
+      - mushroom-network
+    restart: unless-stopped
+
+  image-service:
+    image: ${DOCKERHUB_USERNAME}/mushroom-image-service:${IMAGE_TAG}
+    environment:
+      - PORT=8082
+      - IMAGE_STORAGE_PATH=/app/images
+    volumes:
+      - image-data:/app/images
+    networks:
+      - mushroom-network
+    restart: unless-stopped
+
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/mushroom-frontend:${IMAGE_TAG}
+    environment:
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=http://api-gateway:8080
+    ports:
+      - "3000:3000"
+    networks:
+      - mushroom-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - mushroom-network
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  image-data:
+
+networks:
+  mushroom-network:
+    driver: bridge

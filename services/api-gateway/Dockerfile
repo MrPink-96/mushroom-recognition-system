@@ -1,3 +1,4 @@
+# ---------- 1. BUILD STAGE ----------
 FROM golang:1.25.8 AS Builder
 
 WORKDIR /app

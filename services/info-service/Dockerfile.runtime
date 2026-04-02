@@ -1,0 +1,17 @@
+FROM alpine:latest
+
+RUN addgroup -g 1000 appgroup && \
+    adduser -u 1000 -G appgroup -D appuser
+
+WORKDIR /app
+
+COPY bin/app /app/app
+
+RUN chown appuser:appgroup /app/app && \
+    chmod +x /app/app
+
+USER appuser
+
+EXPOSE 8081
+
+CMD ["/app/app"]
