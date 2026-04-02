@@ -30,6 +30,7 @@ func main() {
 	healthHandler := handler.NewHealthHandler(mlClient, infoClient)
 	predictHandler := handler.NewPredictHandler(predictService)
 	speciesHandler := handler.NewSpeciesHandler(infoClient)
+
 	r := gin.Default()
 
 	r.Use(cors.Default())
