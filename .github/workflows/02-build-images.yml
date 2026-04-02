@@ -34,8 +34,14 @@ jobs:
       - name: Set image tag
         run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-api-gateway:${{ github.sha }}" >> $GITHUB_ENV
 
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
+          ls -la services/
+
       - name: Build docker image
-        run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
+        run: docker build -f services/api-gateway/Dockerfile.runtime -t ${{ env.IMAGE_TAG }} services/api-gateway
 
       - name: Docker push
         run: docker push ${{ env.IMAGE_TAG }}
@@ -67,8 +73,14 @@ jobs:
       - name: Set image tag
         run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-info-service:${{ github.sha }}" >> $GITHUB_ENV
 
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
+          ls -la services/
+
       - name: Build docker image
-        run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
+        run: docker build -f services/info-service/Dockerfile.runtime -t ${{ env.IMAGE_TAG }} services/info-service
 
       - name: Docker push
         run: docker push ${{ env.IMAGE_TAG }}
@@ -100,8 +112,14 @@ jobs:
       - name: Set image tag
         run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-ml-service:${{ github.sha }}" >> $GITHUB_ENV
 
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
+          ls -la services/
+
       - name: Build docker image
-        run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
+        run: docker build -f services/ml-service/Dockerfile.runtime -t ${{ env.IMAGE_TAG }} services/ml-service
 
       - name: Docker push
         run: docker push ${{ env.IMAGE_TAG }}
@@ -133,8 +151,14 @@ jobs:
       - name: Set image tag
         run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-image-service:${{ github.sha }}" >> $GITHUB_ENV
 
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
+          ls -la services/
+
       - name: Build docker image
-        run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
+        run: docker build -f services/image-service/Dockerfile.runtime -t ${{ env.IMAGE_TAG }} services/image-service
 
       - name: Docker push
         run: docker push ${{ env.IMAGE_TAG }}
@@ -166,8 +190,14 @@ jobs:
       - name: Set image tag
         run: echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/mushroom-frontend:${{ github.sha }}" >> $GITHUB_ENV
 
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
+          ls -la services/
+
       - name: Build docker image
-        run: docker build -f Dockerfile.runtime -t ${{ env.IMAGE_TAG }} .
+        run: docker build -f services/frontend/Dockerfile.runtime -t ${{ env.IMAGE_TAG }} services/frontend
 
       - name: Docker push
         run: docker push ${{ env.IMAGE_TAG }}
