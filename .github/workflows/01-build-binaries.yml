@@ -3,20 +3,10 @@ name: build-binaries
 on:
   push:
     branches: ["main"]
-    paths:
-      - "services/api-gateway/**"
-      - "services/info-service/**"
-      - "services/ml-service/**"
-      - "services/image-service/**"
-      - "services/frontend/**"
+
   pull_request:
     branches: ["main"]
-    paths:
-      - "services/api-gateway/**"
-      - "services/info-service/**"
-      - "services/ml-service/**"
-      - "services/image-service/**"
-      - "services/frontend/**"
+
   workflow_dispatch:
   workflow_call:
 

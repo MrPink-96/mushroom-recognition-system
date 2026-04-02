@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download binary artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           name: api-gateway-binary
           path: bin
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download binary artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           name: info-service-binary
           path: bin
@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           name: ml-service-binary
           path: .
@@ -116,7 +116,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download binary artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           name: image-service-binary
           path: bin
@@ -149,7 +149,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           name: frontend-build
           path: .
